@@ -6,7 +6,7 @@ jobs:
   PublishMiddlewareExpress:
     runs-on: ubuntu-latest
     defaults:
-      working-directory: middleware-express
+        working-directory: middleware-express
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
