@@ -18,6 +18,6 @@ jobs:
           cache: "npm"
           cache-dependency-path: ${{env.WORKING_DIR}}/package-lock.json
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Run tests
         run: npm test
