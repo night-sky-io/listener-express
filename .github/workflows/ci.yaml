@@ -3,11 +3,12 @@ on: [pull_request]
 jobs:
   TestMiddlewareExpress:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: middleware-express
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
-      - name: Check out middleware-express directory
-        run: cd middleware-express
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
