@@ -4,8 +4,7 @@ jobs:
   TestMiddlewareExpress:
     runs-on: ubuntu-latest
     defaults:
-      run:
-        working-directory: middleware-express
+      working-directory: middleware-express
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
