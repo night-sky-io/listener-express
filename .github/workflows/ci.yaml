@@ -1,13 +1,8 @@
-name: Test NightSky Listeners
+name: Test NightSky Listener
 on: [pull_request]
 jobs:
-  TestMiddlewareExpress:
+  BuildAndTest:
     runs-on: ubuntu-latest
-    env:
-      WORKING_DIR: middleware-express
-    defaults:
-      run:
-        working-directory: ${{env.WORKING_DIR}}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
@@ -16,8 +11,9 @@ jobs:
         with:
           node-version: "16.13.1"
           cache: "npm"
-          cache-dependency-path: ${{env.WORKING_DIR}}/package-lock.json
       - name: Install dependencies
         run: npm ci
+      - name: Build
+        run: npm run build
       - name: Run tests
         run: npm test

@@ -1,12 +1,10 @@
-name: Publish NightSky Listeners
+name: Publish NightSky Listener
 on:
   push:
     branches: [main]
 jobs:
-  PublishMiddlewareExpress:
+  Publish:
     runs-on: ubuntu-latest
-    defaults:
-        working-directory: middleware-express
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
@@ -16,15 +14,17 @@ jobs:
           node-version: "16.13.1"
           cache: "npm"
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+      - name: Build
+        run: npm run build
       - name: Run tests
         run: npm test
-      - name: Increment version
-        uses: copapow/version-bump-package@v1
-          id: bump
-          with:
-              default_branch: main
-              github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: "Automated Version Bump"
+        uses: "phips28/gh-action-bump-version@master"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          target-branch: "main"
       - name: Publish to NPM
         uses: JS-DevTools/npm-publish@v1
         with:
