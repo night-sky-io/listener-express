@@ -2,24 +2,68 @@ import { RequestHandler } from "express";
 import axios from "axios";
 
 export interface ListenerConfig {
-  satellite: string;
+  satelliteHost: string;
+}
+
+export interface SatellitePostBody {
+  req: {
+    path: string;
+  };
+  res: {
+    body: any;
+  };
 }
 
 const listener =
-  ({ satellite }: ListenerConfig): RequestHandler =>
+  ({ satelliteHost }: ListenerConfig): RequestHandler =>
   (req, res, next) => {
     const originalSend = res.send.bind(res);
-
-    res.send = function (responseBody) {
-      if (typeof responseBody === "string") {
-        axios.post(satellite, {
+    res.send = function (data) {
+      if (typeof data === "string") {
+        const satellitePostBody: SatellitePostBody = {
           req: { path: req.path },
-          res: { body: responseBody },
-        });
+          res: { body: data },
+        };
+
+        axios.post(
+          `${satelliteHost}/requests/${req.method}`,
+          satellitePostBody
+        );
       }
 
-      return originalSend(responseBody);
+      return originalSend.apply(this, arguments as unknown as [body?: any]);
     };
+
+    const originalEnd = res.end.bind(res);
+
+    res.end = function (
+      arg1?: Function | any,
+      arg2?: Function | BufferEncoding,
+      arg3?: () => void
+    ) {
+      let body: any;
+      if (typeof arg1 !== "function") {
+        body = arg1;
+      }
+
+      const satellitePostBody: SatellitePostBody = {
+        req: { path: req.path },
+        res: { body },
+      };
+
+      axios.post(`${satelliteHost}/requests/${req.method}`, satellitePostBody);
+
+      return originalEnd.apply(
+        this,
+        arguments as unknown as [
+          chunk: any,
+          encoding: BufferEncoding,
+          cb?: (() => void) | undefined
+        ]
+      );
+    };
+
+    // TODO JMB: Add handler for res.redirect()
 
     next();
   };
