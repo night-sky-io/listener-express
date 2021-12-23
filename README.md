@@ -2,7 +2,9 @@
 
 NightSky Listeners are lightweight additions to your server-side applications that collect request and response data, forwarding it on to NightSky Satellites.
 
-This Listener implementation is an Express middleware. It is suitable for quick-start and production usage but should later be replaced with the NightSky Sidecar Proxy, which allows your application to operate independently, without any direct NightSky integrations.
+This Listener implementation is an Express middleware.
+
+It is suitable for quick-start and, if necessary, production usage. However, we recommend using the NightSky Sidecar Proxy Listener where possible for enhanced performance and separation of concerns.
 
 ## Installation
 
