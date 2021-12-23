@@ -5,7 +5,7 @@ import listener from "./index";
 
 jest.mock("axios");
 
-describe("listener-middleware-express", () => {
+describe("listener-express", () => {
   const examplePath = "/";
   const exampleResponseBody = { example: "response" };
   const exampleSatelliteHost = "example-satellite.cluster.local";

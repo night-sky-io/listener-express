@@ -1,5 +1,5 @@
 {
-  "name": "@night-sky/listener-middleware-express",
+  "name": "@night-sky/listener-express",
   "version": "1.2.0",
   "description": "A NightSky Listener implementation for Express, to be used as middleware.",
   "repository": {
