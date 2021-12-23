@@ -7,9 +7,10 @@ export interface ListenerConfig {
 }
 
 export interface RequestData {
+  method: string;
   path: string;
   query: ParsedQs;
-  method: string;
+  body?: any;
   host?: string;
   origin?: string;
 }
@@ -29,25 +30,23 @@ const listener =
     if (
       ["GET", "HEAD", "POST", "PUT", "DELETE", "PATCH"].includes(req.method)
     ) {
-      const satelliteRequestsUrl = `${satelliteHost}/requests`;
-      const requestData: RequestData = {
-        method: req.method,
-        path: req.baseUrl + req.path,
-        query: req.query,
-        host: req.headers.host,
-        origin: req.headers.origin,
-      };
-
       const originalSend = res.send.bind(res);
 
       res.send = function (data) {
         if (typeof data === "string") {
           const satellitePostBody: SatellitePostBody = {
-            req: requestData,
+            req: {
+              method: req.method,
+              path: req.baseUrl + req.path,
+              query: req.query,
+              body: req.body,
+              host: req.headers.host,
+              origin: req.headers.origin,
+            },
             res: { body: data },
           };
 
-          axios.post(satelliteRequestsUrl, satellitePostBody);
+          axios.post(`${satelliteHost}/requests`, satellitePostBody);
         }
 
         return originalSend.apply(this, arguments as unknown as [body?: any]);

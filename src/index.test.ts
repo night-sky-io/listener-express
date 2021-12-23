@@ -1,4 +1,5 @@
 import express from "express";
+import bodyParser from "body-parser";
 import request from "supertest";
 import axios from "axios";
 import listener, { SatellitePostBody } from "./index";
@@ -27,7 +28,7 @@ describe("listener-express", () => {
       return app;
     };
 
-    describe(`requests using res.${resMethod}()`, () => {
+    describe(`GET requests using res.${resMethod}()`, () => {
       let response: any;
 
       beforeEach(async () => {
@@ -48,9 +49,10 @@ describe("listener-express", () => {
       it("should forward the request/response to the correct satellite host and path", () => {
         const expectedSatellitePostBody: SatellitePostBody = {
           req: {
+            method: "GET",
             path: examplePath,
             query: {},
-            method: "GET",
+            body: undefined,
             host: exampleHost,
             origin: exampleOrigin,
           },
@@ -65,7 +67,7 @@ describe("listener-express", () => {
     });
   });
 
-  describe("complex requests using a nested router with queries", () => {
+  describe("complex GET requests using a nested router with queries", () => {
     let response: any;
 
     beforeEach(async () => {
@@ -97,9 +99,10 @@ describe("listener-express", () => {
     it("should forward the request/response to the correct satellite host and path", () => {
       const expectedSatellitePostBody: SatellitePostBody = {
         req: {
+          method: "GET",
           path: "/level1/level2/level3",
           query: { exampleQuery: "value" },
-          method: "GET",
+          body: undefined,
           host: exampleHost,
           origin: exampleOrigin,
         },
@@ -130,5 +133,52 @@ describe("listener-express", () => {
 
     expect(response.status).toBe(200);
     expect(axios.post).not.toHaveBeenCalled();
+  });
+
+  describe("POST requests using res.send()", () => {
+    let response: any;
+    const exampleRequestBody = { example: "request body" };
+
+    beforeEach(async () => {
+      const app = express();
+      app.use(bodyParser.json());
+      app.use(listener({ satelliteHost: exampleSatelliteHost }));
+      app.post(examplePath, (req, res) => {
+        // @ts-ignore
+        res.send(exampleResponseBody);
+      });
+
+      await request(app)
+        .post(examplePath)
+        .set({ host: exampleHost, origin: exampleOrigin })
+        .send(exampleRequestBody)
+        .then((res) => {
+          response = res;
+        });
+    });
+
+    it("should allow a request to succeed", () => {
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(exampleResponseBody);
+    });
+
+    it("should forward the request/response to the correct satellite host and path", () => {
+      const expectedSatellitePostBody: SatellitePostBody = {
+        req: {
+          method: "POST",
+          path: examplePath,
+          query: {},
+          body: exampleRequestBody,
+          host: exampleHost,
+          origin: exampleOrigin,
+        },
+        res: { body: JSON.stringify(exampleResponseBody) },
+      };
+
+      expect(axios.post).toHaveBeenCalledWith(
+        `${exampleSatelliteHost}/requests`,
+        expectedSatellitePostBody
+      );
+    });
   });
 });
