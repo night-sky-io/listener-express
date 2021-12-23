@@ -11,7 +11,8 @@ export interface RequestData {
   path: string;
   query: ParsedQs;
   method: string;
-  headers: IncomingHttpHeaders;
+  host?: string;
+  origin?: string;
 }
 
 export interface ResponseData {
@@ -34,7 +35,8 @@ const listener =
         method: req.method,
         path: req.baseUrl + req.path,
         query: req.query,
-        headers: req.headers,
+        host: req.headers.host,
+        origin: req.headers.origin,
       };
 
       const originalSend = res.send.bind(res);

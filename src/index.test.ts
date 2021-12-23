@@ -9,6 +9,8 @@ describe("listener-express", () => {
   const examplePath = "/";
   const exampleResponseBody = { example: "response" };
   const exampleSatelliteHost = "example-satellite.cluster.local";
+  const exampleHost = "hostname";
+  const exampleOrigin = "origin";
 
   // it("should log any errors that occur during the asynchronous POST to the satellite", () => {
   //   // TODO
@@ -32,6 +34,7 @@ describe("listener-express", () => {
         const app = createServerWithListener();
         await request(app)
           .get(examplePath)
+          .set({ host: exampleHost, origin: exampleOrigin })
           .then((res) => {
             response = res;
           });
@@ -48,7 +51,8 @@ describe("listener-express", () => {
             path: examplePath,
             query: {},
             method: "GET",
-            headers: expect.any(Object),
+            host: exampleHost,
+            origin: exampleOrigin,
           },
           res: { body: JSON.stringify(exampleResponseBody) },
         };
@@ -73,6 +77,7 @@ describe("listener-express", () => {
 
       await request(app)
         .get(examplePath)
+        .set({ host: exampleHost, origin: exampleOrigin })
         .then((res) => {
           response = res;
         });
@@ -82,7 +87,8 @@ describe("listener-express", () => {
           path: examplePath,
           method: "GET",
           query: {},
-          headers: expect.any(Object),
+          host: exampleHost,
+          origin: exampleOrigin,
         },
         res: { body: "Not found!" },
       };
@@ -106,6 +112,7 @@ describe("listener-express", () => {
 
         await request(app)
           .get(examplePath)
+          .set({ host: exampleHost, origin: exampleOrigin })
           .then((res) => {
             response = res;
           });
@@ -115,7 +122,8 @@ describe("listener-express", () => {
             path: examplePath,
             query: {},
             method: "GET",
-            headers: expect.any(Object),
+            host: exampleHost,
+            origin: exampleOrigin,
           },
           res: { body: undefined },
         };
@@ -149,6 +157,7 @@ describe("listener-express", () => {
 
       await request(app)
         .get("/level1/level2/level3?exampleQuery=value")
+        .set({ host: exampleHost, origin: exampleOrigin })
         .then((res) => {
           response = res;
         });
@@ -165,7 +174,8 @@ describe("listener-express", () => {
           path: "/level1/level2/level3",
           query: { exampleQuery: "value" },
           method: "GET",
-          headers: expect.any(Object),
+          host: exampleHost,
+          origin: exampleOrigin,
         },
         res: { body: JSON.stringify(exampleResponseBody) },
       };
@@ -187,6 +197,7 @@ describe("listener-express", () => {
 
     await request(app)
       .options(examplePath)
+      .set({ host: exampleHost, origin: exampleOrigin })
       .then((res) => {
         response = res;
       });
@@ -196,7 +207,8 @@ describe("listener-express", () => {
         path: examplePath,
         query: {},
         method: "GET",
-        headers: expect.any(Object),
+        host: exampleHost,
+        origin: exampleOrigin,
       },
       res: { body: undefined },
     };
