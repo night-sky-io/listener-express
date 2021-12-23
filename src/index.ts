@@ -8,6 +8,7 @@ export interface ListenerConfig {
 export interface SatellitePostBody {
   req: {
     path: string;
+    method: string;
   };
   res: {
     body: any;
@@ -21,14 +22,11 @@ const listener =
     res.send = function (data) {
       if (typeof data === "string") {
         const satellitePostBody: SatellitePostBody = {
-          req: { path: req.path },
+          req: { path: req.path, method: req.method },
           res: { body: data },
         };
 
-        axios.post(
-          `${satelliteHost}/requests/${req.method}`,
-          satellitePostBody
-        );
+        axios.post(`${satelliteHost}/requests`, satellitePostBody);
       }
 
       return originalSend.apply(this, arguments as unknown as [body?: any]);
@@ -43,11 +41,11 @@ const listener =
       }
 
       const satellitePostBody: SatellitePostBody = {
-        req: { path: req.path },
+        req: { path: req.path, method: req.method },
         res: { body },
       };
 
-      axios.post(`${satelliteHost}/requests/${req.method}`, satellitePostBody);
+      axios.post(`${satelliteHost}/requests`, satellitePostBody);
 
       return originalEnd.apply(
         this,

@@ -10,6 +10,10 @@ describe("listener-middleware-express", () => {
   const exampleResponseBody = { example: "response" };
   const exampleSatelliteHost = "example-satellite.cluster.local";
 
+  // it("should log any errors that occur during the asynchronous POST to the satellite", () => {
+  //   // TODO
+  // });
+
   ["send", "json"].forEach((resMethod) => {
     const createServerWithListener = () => {
       const app = express();
@@ -21,11 +25,7 @@ describe("listener-middleware-express", () => {
       return app;
     };
 
-    it("should log any errors that occur during the asynchronous POST to the satellite", () => {
-      // TODO
-    });
-
-    describe(`GET requests using res.${resMethod}()`, () => {
+    describe(`requests using res.${resMethod}()`, () => {
       let response: any;
 
       beforeEach(async () => {
@@ -44,19 +44,19 @@ describe("listener-middleware-express", () => {
 
       it("should forward the request/response to the correct satellite host and path", () => {
         const expectedSatellitePostBody = {
-          req: { path: examplePath },
+          req: { path: examplePath, method: "GET" },
           res: { body: JSON.stringify(exampleResponseBody) },
         };
 
         expect(axios.post).toHaveBeenCalledWith(
-          `${exampleSatelliteHost}/requests/GET`,
+          `${exampleSatelliteHost}/requests`,
           expectedSatellitePostBody
         );
       });
     });
   });
 
-  describe(`GET requests using res.end()`, () => {
+  describe(`requests using res.end()`, () => {
     let response: any;
 
     it("should forward a request/response and specified status to the correct satellite host and path", async () => {
@@ -73,7 +73,7 @@ describe("listener-middleware-express", () => {
         });
 
       const expectedSatellitePostBody = {
-        req: { path: examplePath },
+        req: { path: examplePath, method: "GET" },
         res: { body: "Not found!" },
       };
 
@@ -81,7 +81,7 @@ describe("listener-middleware-express", () => {
       expect(response.body).toEqual({});
       expect(response.text).toBe("Not found!");
       expect(axios.post).toHaveBeenCalledWith(
-        `${exampleSatelliteHost}/requests/GET`,
+        `${exampleSatelliteHost}/requests`,
         expectedSatellitePostBody
       );
     });
@@ -101,7 +101,7 @@ describe("listener-middleware-express", () => {
           });
 
         const expectedSatellitePostBody = {
-          req: { path: examplePath },
+          req: { path: examplePath, method: "GET" },
           res: { body: undefined },
         };
 
@@ -109,7 +109,7 @@ describe("listener-middleware-express", () => {
         expect(response.body).toEqual({});
         expect(response.text).toBe("");
         expect(axios.post).toHaveBeenCalledWith(
-          `${exampleSatelliteHost}/requests/GET`,
+          `${exampleSatelliteHost}/requests`,
           expectedSatellitePostBody
         );
       });
