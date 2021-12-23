@@ -56,7 +56,7 @@ describe("listener-middleware-express", () => {
     });
   });
 
-  describe(`requests using res.end()`, () => {
+  describe("requests using res.end()", () => {
     let response: any;
 
     it("should forward a request/response and specified status to the correct satellite host and path", async () => {
