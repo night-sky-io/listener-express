@@ -1,7 +1,7 @@
 import express from "express";
 import request from "supertest";
 import axios from "axios";
-import listener from "./index";
+import listener, { SatellitePostBody } from "./index";
 
 jest.mock("axios");
 
@@ -43,8 +43,13 @@ describe("listener-express", () => {
       });
 
       it("should forward the request/response to the correct satellite host and path", () => {
-        const expectedSatellitePostBody = {
-          req: { path: examplePath, method: "GET" },
+        const expectedSatellitePostBody: SatellitePostBody = {
+          req: {
+            path: examplePath,
+            query: {},
+            method: "GET",
+            headers: expect.any(Object),
+          },
           res: { body: JSON.stringify(exampleResponseBody) },
         };
 
@@ -72,8 +77,13 @@ describe("listener-express", () => {
           response = res;
         });
 
-      const expectedSatellitePostBody = {
-        req: { path: examplePath, method: "GET" },
+      const expectedSatellitePostBody: SatellitePostBody = {
+        req: {
+          path: examplePath,
+          method: "GET",
+          query: {},
+          headers: expect.any(Object),
+        },
         res: { body: "Not found!" },
       };
 
@@ -100,8 +110,13 @@ describe("listener-express", () => {
             response = res;
           });
 
-        const expectedSatellitePostBody = {
-          req: { path: examplePath, method: "GET" },
+        const expectedSatellitePostBody: SatellitePostBody = {
+          req: {
+            path: examplePath,
+            query: {},
+            method: "GET",
+            headers: expect.any(Object),
+          },
           res: { body: undefined },
         };
 
@@ -114,5 +129,79 @@ describe("listener-express", () => {
         );
       });
     });
+  });
+
+  describe("complex requests using a nested router with queries", () => {
+    let response: any;
+
+    beforeEach(async () => {
+      const app = express();
+      app.use(listener({ satelliteHost: exampleSatelliteHost }));
+
+      const router1 = express.Router();
+      const router2 = express.Router();
+      router2.get("/level3", (req, res) => {
+        res.send(exampleResponseBody);
+      });
+      router1.use("/level2", router2);
+
+      app.use("/level1", router1);
+
+      await request(app)
+        .get("/level1/level2/level3?exampleQuery=value")
+        .then((res) => {
+          response = res;
+        });
+    });
+
+    it("should allow a request to succeed", () => {
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(exampleResponseBody);
+    });
+
+    it("should forward the request/response to the correct satellite host and path", () => {
+      const expectedSatellitePostBody: SatellitePostBody = {
+        req: {
+          path: "/level1/level2/level3",
+          query: { exampleQuery: "value" },
+          method: "GET",
+          headers: expect.any(Object),
+        },
+        res: { body: JSON.stringify(exampleResponseBody) },
+      };
+
+      expect(axios.post).toHaveBeenCalledWith(
+        `${exampleSatelliteHost}/requests`,
+        expectedSatellitePostBody
+      );
+    });
+  });
+
+  it("should not do anything for an OPTIONS request", async () => {
+    let response: any;
+    const app = express();
+    app.use(listener({ satelliteHost: exampleSatelliteHost }));
+    app.get(examplePath, (req, res) => {
+      res.send();
+    });
+
+    await request(app)
+      .options(examplePath)
+      .then((res) => {
+        response = res;
+      });
+
+    const expectedSatellitePostBody: SatellitePostBody = {
+      req: {
+        path: examplePath,
+        query: {},
+        method: "GET",
+        headers: expect.any(Object),
+      },
+      res: { body: undefined },
+    };
+
+    expect(response.status).toBe(200);
+    expect(axios.post).not.toHaveBeenCalled();
   });
 });
