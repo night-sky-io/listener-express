@@ -36,11 +36,7 @@ const listener =
 
     const originalEnd = res.end.bind(res);
 
-    res.end = function (
-      arg1?: Function | any,
-      arg2?: Function | BufferEncoding,
-      arg3?: () => void
-    ) {
+    res.end = function (arg1?: Function | any) {
       let body: any;
       if (typeof arg1 !== "function") {
         body = arg1;
