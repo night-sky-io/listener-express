@@ -20,8 +20,8 @@ export interface ResponseData {
 }
 
 export interface SatellitePostBody {
-  req: RequestData;
-  res: ResponseData;
+  request: RequestData;
+  response: ResponseData;
 }
 
 const listener =
@@ -35,7 +35,7 @@ const listener =
       res.send = function (data) {
         if (typeof data === "string") {
           const satellitePostBody: SatellitePostBody = {
-            req: {
+            request: {
               method: req.method,
               path: req.baseUrl + req.path,
               query: req.query,
@@ -43,7 +43,7 @@ const listener =
               host: req.headers.host,
               origin: req.headers.origin,
             },
-            res: { body: data },
+            response: { body: data },
           };
 
           axios.post(`${satelliteHost}/requests`, satellitePostBody);

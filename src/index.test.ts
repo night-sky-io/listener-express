@@ -48,7 +48,7 @@ describe("listener-express", () => {
 
       it("should forward the request/response to the correct satellite host and path", () => {
         const expectedSatellitePostBody: SatellitePostBody = {
-          req: {
+          request: {
             method: "GET",
             path: examplePath,
             query: {},
@@ -56,7 +56,7 @@ describe("listener-express", () => {
             host: exampleHost,
             origin: exampleOrigin,
           },
-          res: { body: JSON.stringify(exampleResponseBody) },
+          response: { body: JSON.stringify(exampleResponseBody) },
         };
 
         expect(axios.post).toHaveBeenCalledWith(
@@ -98,7 +98,7 @@ describe("listener-express", () => {
 
     it("should forward the request/response to the correct satellite host and path", () => {
       const expectedSatellitePostBody: SatellitePostBody = {
-        req: {
+        request: {
           method: "GET",
           path: "/level1/level2/level3",
           query: { exampleQuery: "value" },
@@ -106,7 +106,7 @@ describe("listener-express", () => {
           host: exampleHost,
           origin: exampleOrigin,
         },
-        res: { body: JSON.stringify(exampleResponseBody) },
+        response: { body: JSON.stringify(exampleResponseBody) },
       };
 
       expect(axios.post).toHaveBeenCalledWith(
@@ -164,7 +164,7 @@ describe("listener-express", () => {
 
     it("should forward the request/response to the correct satellite host and path", () => {
       const expectedSatellitePostBody: SatellitePostBody = {
-        req: {
+        request: {
           method: "POST",
           path: examplePath,
           query: {},
@@ -172,7 +172,7 @@ describe("listener-express", () => {
           host: exampleHost,
           origin: exampleOrigin,
         },
-        res: { body: JSON.stringify(exampleResponseBody) },
+        response: { body: JSON.stringify(exampleResponseBody) },
       };
 
       expect(axios.post).toHaveBeenCalledWith(
