@@ -18,6 +18,8 @@ export interface SatellitePostBody {
 const listener =
   ({ satelliteHost }: ListenerConfig): RequestHandler =>
   (req, res, next) => {
+    const satelliteRequestsUrl = `${satelliteHost}/requests`;
+
     const originalSend = res.send.bind(res);
     res.send = function (data) {
       if (typeof data === "string") {
@@ -26,7 +28,7 @@ const listener =
           res: { body: data },
         };
 
-        axios.post(`${satelliteHost}/requests`, satellitePostBody);
+        axios.post(satelliteRequestsUrl, satellitePostBody);
       }
 
       return originalSend.apply(this, arguments as unknown as [body?: any]);
@@ -45,7 +47,7 @@ const listener =
         res: { body },
       };
 
-      axios.post(`${satelliteHost}/requests`, satellitePostBody);
+      axios.post(satelliteRequestsUrl, satellitePostBody);
 
       return originalEnd.apply(
         this,
