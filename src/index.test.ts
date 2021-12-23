@@ -65,80 +65,6 @@ describe("listener-express", () => {
     });
   });
 
-  describe("requests using res.end()", () => {
-    let response: any;
-
-    it("should forward a request/response and specified status to the correct satellite host and path", async () => {
-      const app = express();
-      app.use(listener({ satelliteHost: exampleSatelliteHost }));
-      app.get(examplePath, (req, res) => {
-        res.status(404).end("Not found!");
-      });
-
-      await request(app)
-        .get(examplePath)
-        .set({ host: exampleHost, origin: exampleOrigin })
-        .then((res) => {
-          response = res;
-        });
-
-      const expectedSatellitePostBody: SatellitePostBody = {
-        req: {
-          path: examplePath,
-          method: "GET",
-          query: {},
-          host: exampleHost,
-          origin: exampleOrigin,
-        },
-        res: { body: "Not found!" },
-      };
-
-      expect(response.status).toBe(404);
-      expect(response.body).toEqual({});
-      expect(response.text).toBe("Not found!");
-      expect(axios.post).toHaveBeenCalledWith(
-        `${exampleSatelliteHost}/requests`,
-        expectedSatellitePostBody
-      );
-    });
-
-    [undefined, jest.fn()].forEach((resEndArg) => {
-      it(`should send a body of undefined if type '${typeof resEndArg}' is provided to res.end()`, async () => {
-        const app = express();
-        app.use(listener({ satelliteHost: exampleSatelliteHost }));
-        app.get(examplePath, (req, res) => {
-          res.end(resEndArg);
-        });
-
-        await request(app)
-          .get(examplePath)
-          .set({ host: exampleHost, origin: exampleOrigin })
-          .then((res) => {
-            response = res;
-          });
-
-        const expectedSatellitePostBody: SatellitePostBody = {
-          req: {
-            path: examplePath,
-            query: {},
-            method: "GET",
-            host: exampleHost,
-            origin: exampleOrigin,
-          },
-          res: { body: undefined },
-        };
-
-        expect(response.status).toBe(200);
-        expect(response.body).toEqual({});
-        expect(response.text).toBe("");
-        expect(axios.post).toHaveBeenCalledWith(
-          `${exampleSatelliteHost}/requests`,
-          expectedSatellitePostBody
-        );
-      });
-    });
-  });
-
   describe("complex requests using a nested router with queries", () => {
     let response: any;
 
@@ -201,17 +127,6 @@ describe("listener-express", () => {
       .then((res) => {
         response = res;
       });
-
-    const expectedSatellitePostBody: SatellitePostBody = {
-      req: {
-        path: examplePath,
-        query: {},
-        method: "GET",
-        host: exampleHost,
-        origin: exampleOrigin,
-      },
-      res: { body: undefined },
-    };
 
     expect(response.status).toBe(200);
     expect(axios.post).not.toHaveBeenCalled();

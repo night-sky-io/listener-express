@@ -1,6 +1,5 @@
 import { RequestHandler } from "express";
 import axios from "axios";
-import { IncomingHttpHeaders } from "http";
 import { ParsedQs } from "qs";
 
 export interface ListenerConfig {
@@ -52,31 +51,6 @@ const listener =
         }
 
         return originalSend.apply(this, arguments as unknown as [body?: any]);
-      };
-
-      const originalEnd = res.end.bind(res);
-
-      res.end = function (arg1?: Function | any) {
-        let body: any;
-        if (typeof arg1 !== "function") {
-          body = arg1;
-        }
-
-        const satellitePostBody: SatellitePostBody = {
-          req: requestData,
-          res: { body },
-        };
-
-        axios.post(satelliteRequestsUrl, satellitePostBody);
-
-        return originalEnd.apply(
-          this,
-          arguments as unknown as [
-            chunk: any,
-            encoding: BufferEncoding,
-            cb?: (() => void) | undefined
-          ]
-        );
       };
 
       // TODO JMB: Add handler for res.redirect()
